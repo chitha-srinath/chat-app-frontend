@@ -1,0 +1,49 @@
+<div class="chats-main">
+  <div class="chats-header">
+    <div class="chats-title-wrapper">
+      <h1 class="chats-title">Chats</h1>
+    </div>
+
+    <div class="chats-search-wrapper">
+      <input type="text" class="chats-search-input" placeholder="Search" />
+    </div>
+  </div>
+
+  <div class="chats-content">
+    @for (chat of userChats(); track chat._id) {
+    <div class="chat-item" (click)="selectChat(chat)">
+      <div class="chat-avatar">
+        <!-- You can replace this with a real avatar later -->
+        <span>{{ getChatUser(chat)?.name?.charAt(0) || "C" }}</span>
+      </div>
+
+      <div class="chat-info">
+        <div class="chat-top">
+          <h3 class="chat-name">
+            {{ getChatUser(chat)?.name || "Unknown User" }}
+          </h3>
+          <span class="chat-time">{{ chat.lastMessageInfo.timestamp }}</span>
+        </div>
+
+        <div class="chat-last-message">
+          {{
+            getLastMsgUser(
+              chat,
+              chat.lastMessageInfo && chat.lastMessageInfo.senderId
+                ? chat.lastMessageInfo.senderId
+                : ""
+            )
+          }}:
+          {{ chat.lastMessageInfo.message || "" }}
+        </div>
+      </div>
+    </div>
+
+    } @empty {
+    <div class="no-chats">No chats available</div>
+    }
+  </div>
+</div>
+
+<!-- [(ngModel)]="searchUser"
+        (input)="filterChats()" -->

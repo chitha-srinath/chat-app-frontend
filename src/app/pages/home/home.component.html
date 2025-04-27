@@ -1,0 +1,28 @@
+<div class="chat-login-container">
+  <h1 class="chat-title">Welcome to the Chatting App</h1>
+  <p class="chat-subtitle">Login to start chatting with your friends!</p>
+  <p class="chat-instruction">Enter your email address to proceed.</p>
+
+  <div class="chat-form-wrapper">
+    <form class="chat-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="email" class="form-label">Email:</label>
+        <input type="email" class="form-input" formControlName="email" />
+        @if(emailControl()?.touched){
+          @if(emailControl()?.errors?.['required']){
+            <span class="error-message">Email is required.</span>
+          }
+          @if(emailControl()?.errors?.['email']){
+            <span class="error-message">Enter a valid email.</span>
+          }
+        }
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="submit-button" [disabled]="loginForm.invalid">
+          Open chats
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

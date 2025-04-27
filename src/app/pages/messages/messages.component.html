@@ -1,0 +1,129 @@
+<div class="chat-container">
+  <div class="messages-container" #scrollContainer>
+    @for (message of messages(); track message._id) {
+    <div
+      class="message"
+      [class.message-right]="message.senderId === currentUserId()"
+      [class.message-left]="message.senderId !== currentUserId()"
+    >
+      <div class="message-menu">
+        <button class="menu-trigger" (click)="toggleMenu(message._id)">
+          <div class="dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+        <div class="menu-items" [class.active]="activeMenu() === message._id">
+          <button (click)="startEdit(message)">Edit</button>
+          <button (click)="deleteMessage(message._id)">Delete</button>
+          <button (click)="replyToMessage(message)">Reply</button>
+          <button (click)="showReactionPicker(message)">React</button>
+        </div>
+      </div>
+
+      @if (message.isReplied && message.replyToMessage) {
+      <div class="reply-container">
+        Replying to: {{ findReplyMessage(message.replyToMessage)?.message }}
+      </div>
+      }
+
+      <div class="message-content">
+        {{ message.isDeleted ? "This message was deleted" : message.message }}
+      </div>
+
+      @if (message.files && message.files.length > 0) {
+      <div class="attachments">
+        @for (file of message.files; track file) {
+        <div class="attachment">
+          @if (isImage(file)) {
+          <img [src]="file" alt="attachment" class="attachment-preview" />
+          } @else {
+          <a [href]="file" target="_blank">{{ getFileName(file) }}</a>
+          }
+        </div>
+        }
+      </div>
+      }
+
+      <div class="reactions-container">
+        @for (reaction of groupReactions(message.reactions); track
+        reaction.emoji) {
+        <button
+          class="reaction-button"
+          [class.active]="hasUserReacted(message.reactions, reaction.emoji)"
+          (click)="toggleReaction(message._id, reaction.emoji)"
+        >
+          {{ reaction.emoji }} {{ reaction.count }}
+        </button>
+        }
+        <!-- <button
+          class="add-reaction-button"
+          (click)="showReactionPicker(message)"
+        >
+          +
+        </button> -->
+      </div>
+
+      <div class="timestamp">
+        {{ message.timestamp }}
+        @if (message.isEdited) {
+        <span class="edited-indicator">(edited)</span>
+        }
+      </div>
+    </div>
+    }
+  </div>
+
+  <div class="message-input-container">
+    @if (replyingTo()) {
+    <div class="reply-container">
+      Replying to: {{ replyingTo()?.message }}
+      <button (click)="cancelReply()">Cancel</button>
+    </div>
+    }
+
+    <form [formGroup]="messageForm" (ngSubmit)="sendMessage()">
+      <div class="message-input-wrapper">
+        <input
+          type="file"
+          #fileInput
+          multiple
+          (change)="handleFileInput($event)"
+          style="display: none"
+        />
+        <button
+          type="button"
+          class="attachment-button"
+          (click)="fileInput.click()"
+        >
+          📎
+        </button>
+        <input
+          type="text"
+          class="message-input"
+          formControlName="message"
+          placeholder="Type a message..."
+          (keyup.enter)="sendMessage()"
+        />
+        <button
+          type="submit"
+          class="send-button"
+          [disabled]="!messageForm.valid && selectedFiles.length === 0"
+        >
+          Send
+        </button>
+      </div>
+      @if (selectedFiles.length > 0) {
+      <div class="selected-files">
+        @for (file of selectedFiles; track file.name) {
+        <div class="selected-file">
+          {{ file.name }}
+          <button type="button" (click)="removeFile(file)">×</button>
+        </div>
+        }
+      </div>
+      }
+    </form>
+  </div>
+</div>
